@@ -1,5 +1,6 @@
-
-
+/**
+ * Created by xiaomage on 2017/5/6.
+ */
 import React, {Component} from 'react'
 
 // 2.导入常用组件,注册组件,样式组件,View组件,Text组件
@@ -8,81 +9,91 @@ import
     AppRegistry,
     StyleSheet,
     Text,
-    View
+    View,
+    DeviceEventEmitter
 }
 
     from 'react-native'
 
-//顺传 父传子
-// props传值
-// ref 通过ref拿到控件给控件传值
+// 什么时候使用{},包装对象的时候使用{}
+// 什么时候使用{},表达式都需要使用{}
+// 什么时候使用{},变量也需要使用{}包起来
+// 什么时候使用(),保证组件标签的时候,必须使用()
+// 儿子组件
+class GeGe extends Component {
 
-//逆传 子传父
-// // 父:定义一个接收到值方法,
-//子：绑定父类接受到值得方法，然后给他传值
-
-class Son extends Component{
-
+    // 给钱
     sendMoney(){
-
-        this.props.getMoney(100);
+        DeviceEventEmitter.emit('sendMoney',100)
     }
 
-    render() {
-
+    render(){
+        console.log('render')
         return (
-            < View style = {styles.sonStyle}>
-                <Text>{this.props.name}的儿子</Text>
-                < Text style = {{marginBottom: 0}} onPress = {this.sendMoney.bind(this)}>给爸爸钱</Text>
+            <View style={styles.sonStyle}>
+                <Text onPress={this.sendMoney.bind(this)}>给弟弟钱</Text>
             </View>
-    )
+        )
     }
 }
 
-//创建收钱的方法，子类去绑定方法
-class Father extends Component{
+// 修改Props:不会刷新界面
+// 只能去修改state
 
+// 弟弟组件
+class DiDi extends Component {
+
+    // 收到钱
     getMoney(money){
 
         var m = this.state.money;
-        m += money;
-        this.setState({
 
+        m += money;
+
+        this.setState({
             money:m
         })
+
     }
 
-    constructor(props) {
+    constructor(props){
         super(props);
+
         this.state = {
-            money:0,
-        };
+            money:0
+        }
+
+        // 监听
+        DeviceEventEmitter.addListener('sendMoney',this.getMoney.bind(this))
+
     }
+
     render(){
-
-        return(
-
-            < View style = {styles.fatherStyle}>
-
-    <Son name = "lyp"  getMoney = {this.getMoney.bind(this)} />
-        < Text>共收到儿子+{this.state.money}元人民币</Text>
-        </View>
-    )
+        return (
+            <View style={styles.fatherStyle}>
+                <Text>收到哥哥+{this.state.money}+钱</Text>
+            </View>
+        )
     }
 }
 
-class ReactDemo extends Component{
+// 3.自定义 程序入口组件([[UIView alloc] init])
+class ReactDemo extends Component {
 
+    // 当一个组件要显示的时候,就会自动调用render,渲染组件
     render(){
 
-        return(
-
-            < View style = {styles.mainStyle}>
-    <Father name = "lyp"/>
-
+        return (
+            <View style={styles.mainStyle}>
+                <GeGe />
+                <DiDi />
             </View>
-    )
+
+        )
+
     }
+
+
 }
 
 // 4.样式表 组件外观 尺寸,颜色

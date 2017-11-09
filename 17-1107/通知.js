@@ -8,79 +8,70 @@ import
     AppRegistry,
     StyleSheet,
     Text,
-    View
-}
+    View,
+    DeviceEventEmitter
+} from 'react-native'
 
-    from 'react-native'
-
-//顺传 父传子
-// props传值
-// ref 通过ref拿到控件给控件传值
-
-//逆传 子传父
-// // 父:定义一个接收到值方法,
-//子：绑定父类接受到值得方法，然后给他传值
-
-class Son extends Component{
-
-    sendMoney(){
-
-        this.props.getMoney(100);
-    }
-
-    render() {
-
-        return (
-            < View style = {styles.sonStyle}>
-                <Text>{this.props.name}的儿子</Text>
-                < Text style = {{marginBottom: 0}} onPress = {this.sendMoney.bind(this)}>给爸爸钱</Text>
-            </View>
-    )
-    }
-}
-
-//创建收钱的方法，子类去绑定方法
-class Father extends Component{
+class DiDi extends Component{
 
     getMoney(money){
-
         var m = this.state.money;
         m += money;
         this.setState({
 
-            money:m
+            money:m,
         })
     }
 
     constructor(props) {
         super(props);
         this.state = {
-            money:0,
-        };
-    }
-    render(){
 
+            money: 0,
+        };
+        //监听
+        DeviceEventEmitter.addListener('sendMoney',this.getMoney.bind(this))
+    }
+
+    render(){
         return(
 
-            < View style = {styles.fatherStyle}>
+            <View style = {styles.sonStyle}>
 
-    <Son name = "lyp"  getMoney = {this.getMoney.bind(this)} />
-        < Text>共收到儿子+{this.state.money}元人民币</Text>
+    <Text>收到哥哥+{this.state.money} 人民币</Text>
+        </View>
+
+    )
+    }
+}
+
+class GeGe extends Component{
+
+    sendMoney(){
+
+        DeviceEventEmitter.emit('sendMoney',100)
+    }
+    render(){
+        return(
+
+            <View style = {styles.fatherStyle}>
+    <Text onPress = {this.sendMoney.bind(this)}>给弟弟钱</Text>
         </View>
     )
     }
 }
 
+//两个不相关的控件用通知
 class ReactDemo extends Component{
 
     render(){
 
         return(
 
-            < View style = {styles.mainStyle}>
-    <Father name = "lyp"/>
-
-            </View>
+            <View style = {styles.mainStyle}>
+    <GeGe/>
+        <DiDi/>
+        </View>
     )
     }
 }
