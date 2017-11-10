@@ -15,93 +15,111 @@ import
     Button,
     TextInput,
     Image,
-    Dimensions
+    Dimensions,
+    ScrollView
 }from 'react-native'
 
 var screenW = Dimensions.get('window').width
 var screenH = Dimensions.get('window').height
 
-// 自定义登录界面
-// export:当前类暴露出去
+class ReactDemo extends Component{
 
-export default class LoginView extends Component{
+// {/*创建属性*/}
+    constructor(props) {
+     super(props);
+     this.state = {
 
+         listData:[],
+        };
+    }
+
+// {/*控件在家完成的时候调用网络请求*/}
+componentDidMount()
+{
+    var listData = require('./Res/zhubo.json');
+    this.setState({
+        listData:listData,
+    })
+}
+
+// 当scrollView一滚动的时候就会调用
+// 在RN中,滚动的时候,不会去直接修改scrollView.props.contentOffset
+
+// 所有监听scrollView滚动的事件,默认都会传入一个合成事件e,
+// 合成事件:原生App中产生事件对象,这个合成事件对象有个原生事件对象
+// e.nativeEvent
+// 原生事里面,一般都会有想要的属性
+_onScroll(e){
+
+    // 获取原生事件
+    var nativeEvent =  e.nativeEvent;
+
+    var contentOffset = nativeEvent.contentOffset;
+
+    console.log(contentOffset);
+}
+
+// 开始滚动的时候就会调用
+_onMomentumScrollBegin(){
+    console.log('_onMomentumScrollBegin')
+}
+
+// 滚动结束的时候调用,拖拽的时候会有惯性,惯性结束的时候就会执行
+_onMomentumScrollEnd(){
+    console.log('_onMomentumScrollEnd')
+}
+
+// 开始拖拽的时候调用
+_onScrollBeginDrag(){
+    console.log('_onScrollBeginDrag')
+}
+// 结束拖拽的时候调用
+_onScrollEndDrag(){
+    console.log('_onScrollEndDrag')
+}
     render(){
+
         return(
+            <ScrollView style = {{flex: 1}}
+                    onScroll = {this._onScroll.bind(this)}
+                    onMomentumScrollBegin = {this._onMomentumScrollBegin.bind(this)}
+                        onMomentumScrollEnd = {this._onMomentumScrollEnd.bind(this)}
+                            onScrollBeginDrag = {this._onScrollBeginDrag.bind(this)}
+                                onScrollEndDrag = {this._onScrollEndDrag.bind(this)}
+                                    ref = "scrollView"
+                                        contentOffset={{x:0,y:10}}>
 
-            < View style = {{flex:1,backgroundColor:'rgb(208,208,208)', alignItems:'center'}}>
-                {/* 头像*/}
-                <Image source = {{uri:'wukong'}} style = {styles.iconStyle} />
-                {/* 输入框*/}
-                <TextInput  style={[styles.textInputStyle, {marginTop:20}]}
-                            placeholder = '请输入账号'
-                            clearButtonMode = 'always' />
+            {/*添加子控件*/}
+         {this._renderChildView(this.state.listData)}
 
-                 <TextInput style={[styles.textInputStyle, {marginTop:5}]}
-                            placeholder = '请输入密码'
-                            clearButtonMode = 'always'
-                            secureTextEntry = {true}   />
-                {/*登录按钮*/}
-                <TouchableOpacity>
-                    <View style = {styles.loginStyle} >
-                        <Text style = {{fontSize:20,color:'white'}}>登录</Text>
-                    </View>
-                </TouchableOpacity>
-                 {/*无法登录/新用户*/}
-                 <View style={{flexDirection:'row',justifyContent:'space-between',width:screenW,marginTop:10}}>
-                    <Button title = '无法登录'
-                            onPress = {()=>{}} />
-                    <Button title = '新用户'
-                            onPress = {()=>{}} />
-
-                 </View>
-                {/*其他登录方式*/}
-                <View style={styles.otherLoginStyle}>
-                    <Text style={{lineHeight:30,marginLeft: 5}}>其他登录方式</Text>
-                    <Image source={{uri:'qq'}} style={{width: 30,height: 30,borderRadius:15,marginLeft: 5}}/>
-                    <Image source={{uri:'wx'}} style={{width: 30,height: 30,borderRadius:15,marginLeft: 5}}/>
-                    <Image source={{uri:'sina'}} style={{width: 30,height: 30,borderRadius:15,marginLeft: 5}}/>
-                </View>
-            </View>
+            </ScrollView>
 
         )
     }
-}
 
+//    添加子控件
+    // 添加子控件
+    _renderChildView(listData){
 
-// 4.样式表 组件外观 尺寸,颜色
-var styles = StyleSheet.create({
+        // for (i in listData) {
+        //     var zhubo = listData[i];
+        //     console.log(zhubo);
+        // }
 
-    iconStyle:{
-        width:100,
-        height:100,
-        borderWidth:1,
-        borderColor:'white',
-        borderRadius:50,
-        marginTop:80
-    },
-    textInputStyle:{
-        backgroundColor:'white',
-        width:screenW,
-        height:40,
-        textAlign:'center'
-    },
-    loginStyle:{
-        width:250,
-        height:35,
-        backgroundColor:'rgb(73,151,220)',
-        justifyContent:'center',
-        alignItems:'center',
-        marginTop:20,
-        borderRadius:6
-    },
-    otherLoginStyle:{
-        flexDirection:'row',
-        position:'absolute',
-        bottom:5,
-        left:0
+        var imgs = [];
+        //  forEach:参数 回调函数:value,i
+        listData.forEach((zhubo,i)=>{
+            imgs.push(
+        <Image source={{uri:zhubo.icon}}
+        style={{width:screenW,height:300}}
+        key={i}
+        />
+    )
+    })
+
+        return imgs;
     }
 
-})
+}
 
-AppRegistry.registerComponent('ReactDemo',() => LoginView );
+AppRegistry.registerComponent('ReactDemo',() => ReactDemo );
