@@ -143,7 +143,7 @@ class ReactDemo extends Component {
         var listData = this.state.listData;
 
         var childs = [];
-        listData.forEach((value,i)=>{
+        listData.forEach((zhubo,i)=>{
             // 生成指示器
             childs.push(
                 <View key={i} style={i == this.state.curPage?styles.activeDotStyle:styles.dotStyle}/>
