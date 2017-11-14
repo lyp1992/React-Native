@@ -18,31 +18,87 @@ import
     Button,
     TextInput,
     Image,
-    Dimensions
+    Dimensions,
+    ListView
 }
     from 'react-native'
-import Person from './propsType/Person'
-import YPCompoent from './propsType/YPCompoent'
 
 // 3.自定义 程序入口组件([[UIView alloc] init])
 class ReactDemo extends Component {
 
+    constructor(props) {
+      super(props);
 
-    render(){
+      //创建数据源对象,必须使用New
+        var  datas = new ListView.DataSource({
+            rowHasChanged:(r1,r2)=>{r1 != r2}
+        })
+        // 设置数据
+        // cloneWithRows:返回一个新的并且已经赋值好的数据源对象
+        datas = datas.cloneWithRows(['row1','row2']);
 
-        var person = new Person();
+      this.state = {
+          datas:datas
+      };
 
-        person.eat();
+    }
 
-        Person.eat();
 
-        Person.money = 20;
+    render() {
 
-        console.log(person);
+      return(
+          <ListView dataSource = {this.state.datas}
+                    style = {{marginTop:20,backgroundColor:'white'}}
+                    renderRow = {this._renderRow.bind(this)}
+                    renderFooter={this._renderFooterView.bind(this)}
+                    renderHeader = {this._renderheaderView.bind(this)}
+                    onScroll ={(e)=>{
+
+                         console.log(e.nativeEvent);
+                        }}
+                    />
+
+      )
+
+    }
+
+    _renderFooterView(){
+
+        return (<View style={{backgroundColor:'blue',height:200}}></View>)
+    }
+    _renderheaderView(){
+
+        return (<View style={{backgroundColor:'red',height:200}}></View>)
+
+    }
+    _renderSeparator(){
 
         return (
-            <YPCompoent />
+            <View style={{height:1,backgroundColor:'#e8e8e8'}}>
+
+             </View>
     )
+    }
+//    设置每一行的样式
+    // highlightRow:高亮函数,告诉她哪一行需要高亮,函数需要传入两个参数,组ID,行ID
+    _renderRow(rowData,sectionID,rowID,highlightRow) {
+        return (
+
+            <TouchableOpacity>
+                <View style = {{height:44,
+                            justifyContent:'center',
+                            backgroundColor:'green',
+                             borderBottomColor:'#e8e8e8',
+                            borderLeftWidth:1
+                }} onPress={()=>{
+                    console.log(rowData)
+                    }}>
+
+                    <Text>{rowData}</Text>
+                    </View>
+
+            </TouchableOpacity>
+        )
 
     }
 
@@ -55,6 +111,7 @@ class ReactDemo extends Component {
 
 // 4.样式表 组件外观 尺寸,颜色
 var styles = StyleSheet.create({
+
 
 })
 
