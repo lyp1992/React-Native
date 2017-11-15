@@ -19,9 +19,13 @@ import
     TextInput,
     Image,
     Dimensions,
-    ListView
+    ListView,
+    Platform,
+    PixelRatio
 }
     from 'react-native'
+
+var screenW = Dimensions.get('window').width;
 
 // 3.自定义 程序入口组件([[UIView alloc] init])
 class ReactDemo extends Component {
@@ -29,77 +33,67 @@ class ReactDemo extends Component {
     constructor(props) {
       super(props);
 
-      //创建数据源对象,必须使用New
-        var  datas = new ListView.DataSource({
-            rowHasChanged:(r1,r2)=>{r1 != r2}
-        })
-        // 设置数据
-        // cloneWithRows:返回一个新的并且已经赋值好的数据源对象
-        datas = datas.cloneWithRows(['row1','row2']);
-
+      //创建数据源
+        var ds = new ListView.DataSource({
+            rowHasChanged:(r1,r2)=>{r1 != r2},
+            sectionHeaderHasChanged:(s1,s2)=>{s1 != s2}
+        });
+      //  获取数据源
+        // 加载数据
+        var citys = require('./Res/城市列表.json')
+      //  解析处理数据
+        var sectionData = this._resolveData(citys);
+        ds = ds.cloneWithRowsAndSections(sectionData)
       this.state = {
-          datas:datas
+            ds:ds
       };
+    }
+    //处理数据 {A:[a,b],B:[c,d]}
+    _resolveData(cityData){
+        var sectionDatas = {};
 
+        cityData.forEach((provice,index)=>{
+
+            var provicename = provice.name;
+
+            var cityList = provice.sub;
+            var cityes=[];
+
+            cityList.forEach((city,i)=>{
+                cityes.push(city.name);
+            })
+
+            sectionDatas[provicename] = cityes;
+        })
+            return sectionDatas;
     }
 
+    _renderRow(rowData,sectionID,rowID){
 
-    render() {
-
-      return(
-          <ListView dataSource = {this.state.datas}
-                    style = {{marginTop:20,backgroundColor:'white'}}
-                    renderRow = {this._renderRow.bind(this)}
-                    renderFooter={this._renderFooterView.bind(this)}
-                    renderHeader = {this._renderheaderView.bind(this)}
-                    onScroll ={(e)=>{
-
-                         console.log(e.nativeEvent);
-                        }}
-                    />
-
-      )
-
-    }
-
-    _renderFooterView(){
-
-        return (<View style={{backgroundColor:'blue',height:200}}></View>)
-    }
-    _renderheaderView(){
-
-        return (<View style={{backgroundColor:'red',height:200}}></View>)
-
-    }
-    _renderSeparator(){
-
-        return (
-            <View style={{height:1,backgroundColor:'#e8e8e8'}}>
-
-             </View>
+    return (
+        <View style={{height:44, borderBottomWidth:1/PixelRatio.get(), justifyContent:'center',borderBottomColor:'#e5e5e5'}}>
+            <Text style={{fontSize: 18}}>{rowData}</Text>
+        </View>
     )
     }
-//    设置每一行的样式
-    // highlightRow:高亮函数,告诉她哪一行需要高亮,函数需要传入两个参数,组ID,行ID
-    _renderRow(rowData,sectionID,rowID,highlightRow) {
-        return (
 
-            <TouchableOpacity>
-                <View style = {{height:44,
-                            justifyContent:'center',
-                            backgroundColor:'green',
-                             borderBottomColor:'#e8e8e8',
-                            borderLeftWidth:1
-                }} onPress={()=>{
-                    console.log(rowData)
-                    }}>
+_renderSectionHeader(sectionData,sectionID){
 
-                    <Text>{rowData}</Text>
-                    </View>
+    return(
 
-            </TouchableOpacity>
+        <View style={{backgroundColor:'#e8e8e8'}}>
+            <Text style={{fontSize:20}}>{sectionID}</Text>
+            </View>
+    )
+}
+    render(){
+        return(
+            <ListView dataSource = {this.state.ds}
+                        renderRow = {this._renderRow.bind(this)}
+                        renderSectionHeader = {this._renderSectionHeader.bind(this)}
+                        style = {{marginTop: 20}}
+                    />
         )
-
     }
 
 }
@@ -111,7 +105,15 @@ class ReactDemo extends Component {
 
 // 4.样式表 组件外观 尺寸,颜色
 var styles = StyleSheet.create({
-
+    topViewStyle:{
+        height:50,
+        width:screenW,
+        flexDirection:'row',
+        alignItems:'center'
+    },
+    nameStyle:{
+        fontSize:13
+    }
 
 })
 
